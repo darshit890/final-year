@@ -1,76 +1,71 @@
-// src/app/api/options/[type]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 
-type RouteParams = { params: { type: string } };
-type HandlerContext = { params: RouteParams['params'] | Promise<RouteParams['params']> };
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ type: string }> }
+) {
+  const resolvedParams = await params;
+  const type = resolvedParams.type;
 
-// Generic param resolver for Edge/Node compatibility
-async function resolveParams(params: HandlerContext['params']) {
-  return await Promise.resolve(params);
-}
-
-// Shared validation logic
-function validateType(type: string) {
   const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
+  
   if (!validTypes.includes(type)) {
-    return NextResponse.json(
-      { error: `Invalid type. Valid types: ${validTypes.join(', ')}` },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
   }
-}
 
-// Mock data factory
-function getOptions(type: string) {
-  const data = {
+  // Mock data for demonstration - replace with actual database calls later
+  const options = {
     authors: [
       { value: 'john-doe', label: 'John Doe' },
-      { value: 'jane-smith', label: 'Jane Smith' }
+      { value: 'jane-smith', label: 'Jane Smith' },
+      { value: 'alex-johnson', label: 'Alex Johnson' },
     ],
     channels: [
       { value: 'web', label: 'Web' },
-      { value: 'mobile', label: 'Mobile' }
+      { value: 'mobile', label: 'Mobile' },
+      { value: 'email', label: 'Email' },
     ],
     categories: [
       { value: 'technology', label: 'Technology' },
-      { value: 'business', label: 'Business' }
+      { value: 'business', label: 'Business' },
+      { value: 'health', label: 'Health & Wellness' },
+      { value: 'science', label: 'Science' },
     ],
     newsletters: [
       { value: 'weekly-digest', label: 'Weekly Digest' },
-      { value: 'monthly-update', label: 'Monthly Update' }
+      { value: 'monthly-update', label: 'Monthly Update' },
+      { value: 'tech-trends', label: 'Tech Trends' },
     ],
     topics: [
       { value: 'javascript', label: 'JavaScript' },
-      { value: 'react', label: 'React' }
-    ]
+      { value: 'react', label: 'React' },
+      { value: 'nextjs', label: 'Next.js' },
+      { value: 'ai', label: 'Artificial Intelligence' },
+    ],
   };
 
-  return data[type as keyof typeof data] || [];
+  // Return the options for the requested type
+  return NextResponse.json(options[type as keyof typeof options]);
 }
 
-export async function GET(request: NextRequest, context: RouteParams) {
-  const resolvedParams = await resolveParams(context.params);
-  const validation = validateType(resolvedParams.type);
-  if (validation) return validation;
+// Optional: Add POST method to create new options
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ type: string }> }
+) {
+  const resolvedParams = await params;
+  const type = resolvedParams.type;
 
-  return NextResponse.json(getOptions(resolvedParams.type));
-}
-
-export async function POST(request: NextRequest, context: RouteParams) {
-  const resolvedParams = await resolveParams(context.params);
-  const validation = validateType(resolvedParams.type);
-  if (validation) return validation;
+  const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
+  
+  if (!validTypes.includes(type)) {
+    return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
+  }
 
   try {
-    const body = await request.json();
-    return NextResponse.json(
-      { ...body, id: crypto.randomUUID() },
-      { status: 201 }
-    );
+    const item = await request.json();
+    return NextResponse.json({ ...item, id: crypto.randomUUID() }, { status: 201 });
   } catch {
-    return NextResponse.json(
-      { error: `Failed to create ${resolvedParams.type.slice(0, -1)}` },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: `Failed to create ${type.slice(0, -1)}` }, { status: 500 });
   }
 }
