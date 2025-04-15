@@ -4,6 +4,8 @@ import { ArticlesDataTable } from "@/components/articles-data-table"
 import { TrendingUp, Users, UserPlus, BarChart, Bell, Search } from "lucide-react"
 import { AddArticleDialog } from "@/components/add-article-dialog"
 import { Input } from "@/components/ui/input"
+import { useEffect, useState } from "react"
+import { toast } from "@/components/ui/use-toast"
 
 // Either remove the unused interface or export it for use elsewhere
 // interface Article {
@@ -15,6 +17,37 @@ import { Input } from "@/components/ui/input"
 // }
 
 export default function AdminDashboard() {
+  // Add state to track if options are loaded
+  const [optionsLoaded, setOptionsLoaded] = useState(false);
+
+  // Add effect to preload options
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        // Fetch all option types to ensure they're cached
+        const optionTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
+        await Promise.all(
+          optionTypes.map(type => 
+            fetch(`/api/options/${type}`).then(res => {
+              if (!res.ok) throw new Error(`Failed to load ${type}`);
+              return res.json();
+            })
+          )
+        );
+        setOptionsLoaded(true);
+      } catch (error) {
+        console.error('Error loading options:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load form options. Please refresh the page.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    loadOptions();
+  }, []);
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-slate-50 dark:bg-slate-900">
       {/* Improved header with search and better spacing */}
@@ -48,10 +81,17 @@ export default function AdminDashboard() {
             <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200">Newsletter Dashboard</h2>
             <p className="text-slate-500 dark:text-slate-400">Manage your newsletter content and subscribers</p>
           </div>
-          <AddArticleDialog />
+          {/* Only show dialog when options are loaded */}
+          {optionsLoaded ? (
+            <AddArticleDialog />
+          ) : (
+            <div className="px-4 py-2 bg-slate-100 rounded-md text-slate-500">
+              Loading options...
+            </div>
+          )}
         </div>
         
-        {/* Stats cards with improved shadows and hover effects */}
+        {/* Stats cards - unchanged */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="border-none shadow-md hover:shadow-lg transition-all duration-200 hover:translate-y-[-2px]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -116,8 +156,7 @@ export default function AdminDashboard() {
               <span className="w-1.5 h-5 bg-blue-600 rounded-full mr-2 inline-block"></span>
               Articles Management
             </h2>
-            {/* Fix the type issue by using type assertion */}
-{/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             <ArticlesDataTable columns={columns as any} data={[]} />
           </div>
         </div>
