@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-// Fix the parameter types for the GET function
+// Update the parameter structure to match Next.js 15 requirements
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const id = params.id;
+    const id = context.params.id;
     
     const { data, error } = await supabase
       .from('articles')
@@ -29,10 +29,10 @@ export async function GET(
   }
 }
 
-// Make sure the other route handlers use the same parameter structure
+// Update the PUT handler with the correct parameter structure
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const updates = await request.json();
@@ -40,7 +40,7 @@ export async function PUT(
     const { data, error } = await supabase
       .from('articles')
       .update(updates)
-      .eq('id', params.id)
+      .eq('id', context.params.id)
       .select();
 
     if (error) {
@@ -53,20 +53,20 @@ export async function PUT(
 
     return NextResponse.json(data[0]);
   } catch (err: unknown) {
-    // Changed 'error' to 'err' to avoid the unused variable warning
     return NextResponse.json({ error: `Failed to update article ${err}` }, { status: 500 });
   }
 }
 
+// Update the DELETE handler with the correct parameter structure
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const { error } = await supabase
       .from('articles')
       .delete()
-      .eq('id', params.id);
+      .eq('id', context.params.id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
@@ -74,7 +74,6 @@ export async function DELETE(
 
     return NextResponse.json({ message: 'Article deleted successfully' });
   } catch (err: unknown) {
-    // Changed 'error' to 'err' to avoid the unused variable warning
     return NextResponse.json({ error: `Failed to delete article ${err}` }, { status: 500 });
   }
 }
