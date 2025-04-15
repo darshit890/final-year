@@ -19,12 +19,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Trash2, Download, ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from "lucide-react"
 import { toast } from "@/components/ui/use-toast"
 
+// Define a base interface for article data
+interface Article {
+  id: string;
+  // Add other common article properties here
+  [key: string]: unknown;
+}
+
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data?: TData[]
 }
 
-export function ArticlesDataTable<TData, TValue>({ columns, data: initialData }: DataTableProps<TData, TValue>) {
+export function ArticlesDataTable<TData extends Article, TValue>({ columns, data: initialData }: DataTableProps<TData, TValue>) {
   const [globalFilter, setGlobalFilter] = useState("")
   const [isMounted, setIsMounted] = useState(false)
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
@@ -75,7 +82,8 @@ export function ArticlesDataTable<TData, TValue>({ columns, data: initialData }:
   // Handle delete selected rows
   const handleDeleteSelected = async () => {
     const selectedRows = table.getFilteredSelectedRowModel().rows
-    const selectedIds = selectedRows.map(row => (row.original as any).id)
+    // Use the Article interface instead of any
+    const selectedIds = selectedRows.map(row => (row.original).id)
     
     if (confirm(`Are you sure you want to delete ${selectedIds.length} selected articles?`)) {
       try {

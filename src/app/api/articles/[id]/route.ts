@@ -23,7 +23,7 @@ export async function GET(
     return NextResponse.json(data);
   } catch (err) {
     // Changed 'error' to 'err' to avoid the unused variable warning
-    return NextResponse.json({ error: 'Failed to fetch article' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to fetch article ${err}` }, { status: 500 });
   }
 }
 
@@ -49,9 +49,9 @@ export async function PUT(
     }
 
     return NextResponse.json(data[0]);
-  } catch (err) {
+  } catch (err: unknown) {
     // Changed 'error' to 'err' to avoid the unused variable warning
-    return NextResponse.json({ error: 'Failed to update article' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to update article ${err}` }, { status: 500 });
   }
 }
 
@@ -70,8 +70,8 @@ export async function DELETE(
     }
 
     return NextResponse.json({ message: 'Article deleted successfully' });
-  } catch (err) {
+  } catch (err: unknown) {
     // Changed 'error' to 'err' to avoid the unused variable warning
-    return NextResponse.json({ error: 'Failed to delete article' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to delete article ${err}` }, { status: 500 });
   }
 }

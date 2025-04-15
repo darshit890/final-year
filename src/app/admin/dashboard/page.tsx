@@ -5,10 +5,20 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { AddArticleDialog } from "@/components/add-article-dialog"
 
+// Define the Article interface
+interface Article {
+  id: string;
+  title: string;
+  author: string;
+  category: string;
+  // Add other properties as needed
+}
+
 export default function AdminDashboard() {
   const router = useRouter()
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [articles, setArticles] = useState([])
+  // Properly type the articles state
+  const [articles, setArticles] = useState<Article[]>([])
   
   useEffect(() => {
     // Check if user is authenticated
@@ -70,8 +80,8 @@ export default function AdminDashboard() {
             <tbody>
               {articles.map((article) => (
                 <tr key={article.id} className="border-b">
-                  <td className="py-3 px-4">{(article as any).title}</td>
-                  <td className="py-3 px-4">{article?.author}</td>
+                  <td className="py-3 px-4">{article.title}</td>
+                  <td className="py-3 px-4">{article.author}</td>
                   <td className="py-3 px-4">{article.category}</td>
                   <td className="py-3 px-4">
                     <Button variant="outline" size="sm" className="mr-2">Edit</Button>
