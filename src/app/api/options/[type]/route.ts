@@ -2,12 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  context: { params: { type: string } }
+  { params }: { params: { type: string } }
 ) {
   const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
   
-  // Fix: Ensure params is awaited before accessing
-  const type = (await context.params).type;
+  // Handle both cases: params might be a Promise or a direct object depending on environment
+  const paramsObj = 'then' in params ? await params : params;
+  const type = paramsObj.type;
 
   if (!validTypes.includes(type)) {
     return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
@@ -51,12 +52,13 @@ export async function GET(
 // Optional: Add POST method to create new options
 export async function POST(
   request: NextRequest,
-  context: { params: { type: string } }
+  { params }: { params: { type: string } }
 ) {
   const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
   
-  // Fix: Ensure params is awaited before accessing
-  const type = (await context.params).type;
+  // Handle both cases: params might be a Promise or a direct object depending on environment
+  const paramsObj = 'then' in params ? await params : params;
+  const type = paramsObj.type;
 
   if (!validTypes.includes(type)) {
     return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
