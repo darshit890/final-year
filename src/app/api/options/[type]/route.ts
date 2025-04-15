@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { type: string } }
-) {
-  const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
+    request: NextRequest,
+    { params }: { params: { type: string } }
+  ) {
+    // Safely resolve params (works for both regular and Promise-based params)
+    const resolvedParams = await Promise.resolve(params);
+    const type = resolvedParams.type;
   
-  // Handle both cases: params might be a Promise or a direct object depending on environment
-  const paramsObj = 'then' in params ? await params : params;
-  const type = paramsObj.type;
-
-  if (!validTypes.includes(type)) {
-    return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
-  }
+    const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
+    
+    if (!validTypes.includes(type)) {
+      return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
+    }
 
   // Mock data for demonstration - replace with actual database calls later
   const options = {
@@ -51,18 +51,17 @@ export async function GET(
 
 // Optional: Add POST method to create new options
 export async function POST(
-  request: NextRequest,
-  { params }: { params: { type: string } }
-) {
-  const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
+    request: NextRequest,
+    { params }: { params: { type: string } }
+  ) {
+    const resolvedParams = await Promise.resolve(params);
+    const type = resolvedParams.type;
   
-  // Handle both cases: params might be a Promise or a direct object depending on environment
-  const paramsObj = 'then' in params ? await params : params;
-  const type = paramsObj.type;
-
-  if (!validTypes.includes(type)) {
-    return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
-  }
+    const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
+    
+    if (!validTypes.includes(type)) {
+      return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
+    }
 
   try {
     const item = await request.json();
