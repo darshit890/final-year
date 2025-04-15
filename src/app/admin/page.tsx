@@ -1,3 +1,5 @@
+'use client'
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { columns } from "@/components/columns"
 import { ArticlesDataTable } from "@/components/articles-data-table"
