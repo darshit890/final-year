@@ -1,15 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-// Change the parameter structure to match Next.js App Router expectations
+// Update parameter structure to match Next.js 15 requirements
 export async function GET(
   request: NextRequest,
-  { params }: { params: { type: string } }
+  context: { params: { type: string } }
 ) {
   const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
   
-  // Access type directly without awaiting
-  const type = params.type;
+  // Access type through context
+  const type = context.params.type;
 
   if (!validTypes.includes(type)) {
     return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
@@ -45,12 +45,12 @@ export async function GET(
 
 export async function POST(
   request: Request,
-  { params }: { params: { type: string } }
+  context: { params: { type: string } }
 ) {
   const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
   
-  // Access type directly without awaiting
-  const type = params.type;
+  // Access type through context
+  const type = context.params.type;
 
   if (!validTypes.includes(type)) {
     return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
