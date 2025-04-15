@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { type: string } }
+    { params }: { params: { type: unknown } }
   ) {
     // Safely resolve params (works for both regular and Promise-based params)
     const resolvedParams = await Promise.resolve(params);
@@ -10,7 +10,7 @@ export async function GET(
   
     const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
     
-    if (!validTypes.includes(type)) {
+    if (!validTypes.includes(type as string)) {
       return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
     }
 
@@ -52,14 +52,14 @@ export async function GET(
 // Optional: Add POST method to create new options
 export async function POST(
     request: NextRequest,
-    { params }: { params: { type: string } }
+    { params }: { params: { type: unknown } }
   ) {
     const resolvedParams = await Promise.resolve(params);
     const type = resolvedParams.type;
   
     const validTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
     
-    if (!validTypes.includes(type)) {
+    if (!validTypes.includes(type as string)) {
       return NextResponse.json({ error: 'Invalid option type' }, { status: 400 });
     }
 
@@ -70,6 +70,6 @@ export async function POST(
     // In a real app, you would save this to your database
     return NextResponse.json({ ...item, id: crypto.randomUUID() }, { status: 201 });
   } catch {
-    return NextResponse.json({ error: `Failed to create ${type.slice(0, -1)}` }, { status: 500 });
+    return NextResponse.json({ error: `Failed to create ${(type as string).slice(0, -1)}` }, { status: 500 });
   }
 }
