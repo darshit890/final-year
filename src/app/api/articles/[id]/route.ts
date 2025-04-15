@@ -1,34 +1,37 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+// Fix the parameter types for the GET function
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
+    const id = params.id;
+    
     const { data, error } = await supabase
       .from('articles')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
-
+      
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
+    
     if (!data) {
       return NextResponse.json({ error: 'Article not found' }, { status: 404 });
     }
-
+    
     return NextResponse.json(data);
-  } catch (err) {
-    // Changed 'error' to 'err' to avoid the unused variable warning
-    return NextResponse.json({ error: `Failed to fetch article ${err}` }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ error: `Failed to fetch article ${error}` }, { status: 500 });
   }
 }
 
+// Make sure the other route handlers use the same parameter structure
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -56,7 +59,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
