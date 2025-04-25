@@ -23,6 +23,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { AddItemSheet } from "./add-item-sheet"
 import { Plus, FileText } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -97,6 +98,7 @@ export function AddArticleDialog({ refreshArticles }: { refreshArticles?: () => 
 
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
+  const router = useRouter();
   
 // Add this useEffect to fetch options
 useEffect(() => {
@@ -171,6 +173,7 @@ useEffect(() => {
       })
       .finally(() => {
         setSubmitting(false);
+        router.refresh();
       });
   }
 
