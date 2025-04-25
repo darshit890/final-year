@@ -162,6 +162,7 @@ useEffect(() => {
         if (refreshArticles) {
           refreshArticles();
         }
+        router.refresh();
       })
       .catch(error => {
         console.error('Error creating article:', error);
