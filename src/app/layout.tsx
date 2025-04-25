@@ -35,11 +35,6 @@ export default function RootLayout({
           </div>
         </nav>
         <main>{children}</main>
-        <footer className="bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-8 mt-12">
-          <div className="container mx-auto px-4 text-center text-slate-500 dark:text-slate-400">
-            <p>© <span suppressHydrationWarning>{new Date().getFullYear()}</span> The Byte Highlight. All rights reserved.</p>
-          </div>
-        </footer>
         <Toaster />
       </body>
     </html>

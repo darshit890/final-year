@@ -232,7 +232,7 @@ export default function ArticlesPage() {
             {currentArticles.map(article => (
               <div key={article.id} className="border rounded-lg p-4 shadow-sm">
                 <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
-                <p className="text-gray-600 mb-4">{article.subtitle}</p>
+                <p className="text-gray-600 mb-4 line-clamp-2">{article.subtitle}</p>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-500">
                     {article.category} | {article.topic}

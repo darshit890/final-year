@@ -41,3 +41,41 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Failed to create article ${error}` }, { status: 500 });
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    // Get the article ID from the URL
+    const url = new URL(request.url);
+    const id = url.searchParams.get('id');
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Article ID is required' }, 
+        { status: 400 }
+      );
+    }
+    
+    // Delete the article from Supabase
+    const { error } = await supabase
+      .from('articles')
+      .delete()
+      .eq('id', id);
+      
+    if (error) {
+      return NextResponse.json(
+        { error: error.message }, 
+        { status: 500 }
+      );
+    }
+    
+    return NextResponse.json(
+      { message: 'Article deleted successfully' }, 
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { error: `Failed to delete article: ${error}` }, 
+      { status: 500 }
+    );
+  }
+}

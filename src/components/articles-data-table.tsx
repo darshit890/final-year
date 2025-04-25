@@ -92,7 +92,7 @@ export function ArticlesDataTable<TData extends Article, TValue>({ columns, data
         // Delete each selected article
         await Promise.all(
           selectedIds.map(id => 
-            fetch(`/api/articles/${id}`, {
+            fetch(`/api/articles?id=${id}`, {
               method: 'DELETE',
             })
           )

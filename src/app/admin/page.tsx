@@ -3,28 +3,39 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { columns } from "@/components/columns"
 import { ArticlesDataTable } from "@/components/articles-data-table"
-import { TrendingUp, Users, UserPlus, BarChart, Bell, Search } from "lucide-react"
+import { TrendingUp, Users, UserPlus, BarChart, Bell  } from "lucide-react"
 import { AddArticleDialog } from "@/components/add-article-dialog"
-import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
 import { toast } from "@/components/ui/use-toast"
 
-// Either remove the unused interface or export it for use elsewhere
-// interface Article {
-//   id: string;
-//   title: string;
-//   content: string;
-//   publishedAt: Date;
-//   status: 'draft' | 'published';
-// }
+// Interface for subscriber stats
+interface SubscriberStats {
+  totalSubscribers: number;
+  newSubscribers: number;
+  activeSubscribers: number;
+  activePercentage: number;
+  growthRate: string;
+  momChange: string;
+}
 
 export default function AdminDashboard() {
+  // Add state for subscriber stats
+  const [subscriberStats, setSubscriberStats] = useState<SubscriberStats>({
+    totalSubscribers: 0,
+    newSubscribers: 0,
+    activeSubscribers: 0,
+    activePercentage: 0,
+    growthRate: '0.0',
+    momChange: '0.0'
+  });
+
   // Add state to track if options are loaded
   const [optionsLoaded, setOptionsLoaded] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Add effect to preload options
+  // Add effect to preload options and fetch subscriber data
   useEffect(() => {
-    const loadOptions = async () => {
+    const loadData = async () => {
       try {
         // Fetch all option types to ensure they're cached
         const optionTypes = ['authors', 'channels', 'categories', 'newsletters', 'topics'];
@@ -37,17 +48,26 @@ export default function AdminDashboard() {
           )
         );
         setOptionsLoaded(true);
+        
+        // Fetch subscriber stats
+        const subscribersResponse = await fetch('/api/subscribe');
+        if (!subscribersResponse.ok) throw new Error('Failed to load subscriber data');
+        
+        const data = await subscribersResponse.json();
+        setSubscriberStats(data.stats);
       } catch (error) {
-        console.error('Error loading options:', error);
+        console.error('Error loading data:', error);
         toast({
           title: "Error",
-          description: "Failed to load form options. Please refresh the page.",
+          description: "Failed to load data. Please refresh the page.",
           variant: "destructive",
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    loadOptions();
+    loadData();
   }, []);
 
   return (
@@ -56,15 +76,6 @@ export default function AdminDashboard() {
       <div className="border-b bg-white dark:bg-slate-800 shadow-sm sticky top-0 z-10">
         <div className="flex h-16 items-center px-6 justify-between">
           <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">TBH Admin Dashboard</h1>
-          
-          <div className="hidden md:flex items-center relative max-w-md w-full mx-4">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-500" />
-            <Input 
-              type="search" 
-              placeholder="Search articles..." 
-              className="pl-9 bg-slate-50 border-slate-200 focus-visible:ring-blue-500"
-            />
-          </div>
           
           <div className="flex items-center gap-4">
             <button className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 transition-colors relative">
@@ -93,7 +104,7 @@ export default function AdminDashboard() {
           )}
         </div>
         
-        {/* Stats cards - unchanged */}
+        {/* Stats cards with real data */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card className="border-none shadow-md hover:shadow-lg transition-all duration-200 hover:translate-y-[-2px]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -103,11 +114,17 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">12,345</div>
-              <p className="text-xs text-slate-500 mt-1 flex items-center">
-                <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
-                +2.5% from last month
-              </p>
+              {isLoading ? (
+                <div className="h-6 w-20 bg-slate-200 animate-pulse rounded"></div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">{subscriberStats.totalSubscribers.toLocaleString()}</div>
+                  <p className="text-xs text-slate-500 mt-1 flex items-center">
+                    <TrendingUp className="h-3 w-3 mr-1 text-green-500" />
+                    {parseFloat(subscriberStats.momChange) > 0 ? '+' : ''}{subscriberStats.momChange}% from last month
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
           
@@ -119,8 +136,14 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+573</div>
-              <p className="text-xs text-slate-500 mt-1">This month</p>
+              {isLoading ? (
+                <div className="h-6 w-20 bg-slate-200 animate-pulse rounded"></div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">+{subscriberStats.newSubscribers.toLocaleString()}</div>
+                  <p className="text-xs text-slate-500 mt-1">This month</p>
+                </>
+              )}
             </CardContent>
           </Card>
           
@@ -132,8 +155,14 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">10,892</div>
-              <p className="text-xs text-slate-500 mt-1">87% of total subscribers</p>
+              {isLoading ? (
+                <div className="h-6 w-20 bg-slate-200 animate-pulse rounded"></div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">{subscriberStats.activeSubscribers.toLocaleString()}</div>
+                  <p className="text-xs text-slate-500 mt-1">{subscriberStats.activePercentage}% of total subscribers</p>
+                </>
+              )}
             </CardContent>
           </Card>
           
@@ -145,8 +174,16 @@ export default function AdminDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">+4.6%</div>
-              <p className="text-xs text-slate-500 mt-1">+0.8% from last month</p>
+              {isLoading ? (
+                <div className="h-6 w-20 bg-slate-200 animate-pulse rounded"></div>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold">+{subscriberStats.growthRate}%</div>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {parseFloat(subscriberStats.momChange) > 0 ? '+' : ''}{subscriberStats.momChange}% from last month
+                  </p>
+                </>
+              )}
             </CardContent>
           </Card>
         </div>

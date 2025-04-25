@@ -152,7 +152,7 @@ export const columns: ColumnDef<Article>[] = [
       const handleDelete = async () => {
         if (confirm(`Are you sure you want to delete "${article.title}"?`)) {
           try {
-            const response = await fetch(`/api/articles/${article.id}`, {
+            const response = await fetch(`/api/articles?id=${article.id}`, {
               method: 'DELETE',
             });
             
